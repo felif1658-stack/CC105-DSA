@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DSA Visualizers & Guide</title>
+  <style>
+    /* ---------------- Neon Cyber Theme ---------------- */
+    :root{
+      --bg:#06060b;
+      --neon1:#7c3aed; /* purple */
+      --neon2:#00d4ff; /* cyan */
+      --muted:rgba(255,255,255,0.85);
+      --glass: rgba(255,255,255,0.03);
+      --danger:#ff5c7c;
+      --success:#2ee6a7;
+      --mono: 'Courier New', monospace;
+      --card: rgba(255,255,255,0.02);
+      --maxWidth: 1200px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;color:white;background:radial-gradient(ellipse at 10% 10%, #071026 0%, var(--bg) 40%, #04040a 100%);}
+    a{color:var(--neon2); text-decoration:none}
+    header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.03);background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));position:sticky;top:0;z-index:30}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--neon1),var(--neon2));display:flex;align-items:center;justify-content:center;font-weight:800;color:black}
+    h1{margin:0;font-size:18px}
+    nav{display:flex;gap:10px;font-size:14px}
+    nav a{padding:6px 8px;border-radius:8px;opacity:0.95}
+    nav a:hover{background:rgba(255,255,255,0.02)}
+
+    main{max-width:var(--maxWidth);margin:20px auto;padding:12px}
+    .hero{padding:14px;border-radius:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;
+      background:linear-gradient(180deg, rgba(124,58,237,0.06), rgba(0,212,255,0.03));
+      border:1px solid rgba(255,255,255,0.03);
+      box-shadow:0 8px 40px rgba(0,0,0,0.3), 0 0 40px rgba(124,58,237,0.04) inset;
+    }
+    .hero h2{margin:0;color:var(--neon1);letter-spacing:0.4px}
+    .hero p{margin:0;color:var(--muted)}
+
+    .grid{display:grid;grid-template-columns:260px 1fr;gap:18px;align-items:start}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+
+    .sidebar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);height:calc(100vh - 120px);position:sticky;top:68px;overflow:auto}
+    .sidebar a{display:block;color:var(--muted);padding:10px;border-radius:8px;margin-bottom:6px}
+    .sidebar a:hover{background:var(--glass);color:white}
+
+    .content{min-height:600px;padding:6px}
+    section.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;margin-bottom:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    h3{margin:0 0 10px 0;color:var(--neon2)}
+
+    /* Controls */
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+    .input{padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:white;min-width:180px}
+    .btn{padding:9px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700;color:black;background:linear-gradient(90deg,var(--neon2),var(--neon1));box-shadow:0 6px 18px rgba(0,212,255,0.06), 0 0 12px rgba(124,58,237,0.06);}
+    .btn.ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04)}
+    .btn.danger{background:linear-gradient(90deg,#ff7b9a,#ff6b6b);color:black}
+
+    /* Visual nodes */
+    .visual-row{display:flex;gap:10px;align-items:flex-end;padding:12px;min-height:120px;overflow:auto}
+    .node{padding:10px 14px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);transition:all .28s ease;color:white;font-weight:700;min-width:36px;text-align:center;}
+    .node.front{border-color:var(--success);color:var(--success);box-shadow:0 8px 20px rgba(46,230,167,0.06)}
+    .node.rear{border-color:var(--neon1);color:var(--neon1);box-shadow:0 8px 20px rgba(124,58,237,0.06)}
+
+    .stack-box{display:flex;flex-direction:column-reverse;gap:10px;align-items:center;min-height:180px;padding:12px}
+    .tree-canvas{min-height:220px;padding:12px;display:flex;align-items:center;justify-content:center;flex-direction:column}
+    .tree-row{display:flex;justify-content:center;gap:40px;margin-bottom:14px}
+    .tree-node{padding:10px 12px;border-radius:8px;background:linear-gradient(90deg, rgba(124,58,237,0.06), rgba(0,212,255,0.04));border:1px solid rgba(255,255,255,0.03);width:36px;text-align:center;font-weight:800}
+
+    pre{background:rgba(0,0,0,0.25);padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);color:#eaf6ff;font-size:13px}
+    footer{text-align:center;color:var(--muted);margin-top:18px;padding:12px}
+
+    /* focus glow */
+    .input:focus, .btn:focus { outline: none; box-shadow:0 0 12px rgba(0,212,255,0.08), 0 0 24px rgba(124,58,237,0.06); border-color: rgba(255,255,255,0.08) }
+
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
+
+    /* small responsive tweaks */
+    @media(max-width:640px){
+      .controls { flex-direction: column; align-items: stretch; }
+      .input { width:100% }
+      .btn { width:100% }
+      .sidebar { position: static; height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">NEON</div>
+      <div>
+        <h1>DSA</h1>
+        <div style="font-size:12px;color:var(--muted)">Visualizers • Algorithms • Guide • Code</div>
+      </div>
+    </div>
+
+    <nav>
+      <a href="#array">Array</a>
+      <a href="#stack">Stack</a>
+      <a href="#queue">Queue</a>
+      <a href="#tree">Tree</a>
+      <a href="#overview">Overview</a>
+      <a href="#algorithms">Algorithms</a>
+      <a href="#pseudocode">Pseudocode</a>
+      <a href="#extras">Extras</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div>
+        <h2>Visualizers </h2>
+        <p style="color:var(--muted)"></p>
+      </div>
+      <div style="text-align:right">
+        <div style="padding:6px 10px;border-radius:8px;background:linear-gradient(90deg,var(--neon1),var(--neon2));font-weight:700;color:black">Visualizer → Info</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <aside class="sidebar" aria-label="Sidebar navigation">
+        <a href="#array">Array Visualizer</a>
+        <a href="#stack">Stack Visualizer</a>
+        <a href="#queue">Queue Visualizer</a>
+        <a href="#tree">Tree Visualizer</a>
+        <hr style="border:0;border-top:1px solid rgba(255,255,255,0.03);margin:8px 0">
+        <a href="#overview">Overview</a>
+        <a href="#algorithms">Algorithms</a>
+        <a href="#pseudocode">Pseudocode</a>
+        <a href="#extras">Extras</a>
+      </aside>
+
+      <section class="content">
+
+        <!-- ==================== ARRAY VISUALIZER (VISUALIZER FIRST) ===================== -->
+        <section id="array" class="card">
+          <h3>Array Visualizer</h3>
+          <div class="controls">
+            <input id="arrayInput" class="input" placeholder="Enter value or comma-separated values (e.g. 1,2,3). For remove: type value or leave empty to pop last" />
+            <button class="btn" onclick="arrayAdd()">Add</button>
+            <button class="btn" onclick="arrayRemove()">Remove</button>
+            <button class="btn ghost" onclick="arraySearch()">Search</button>
+            <button class="btn ghost" onclick="arrayClear()">Clear</button>
+          </div>
+          <div id="arrayBox" class="visual-row" aria-live="polite"></div>
+          <div id="arrayMsg" style="margin-top:8px;color:var(--muted)"></div>
+        </section>
+
+        <!-- ==================== STACK VISUALIZER ===================== -->
+        <section id="stack" class="card">
+          <h3>Stack Visualizer</h3>
+          <div class="controls">
+            <input id="stackInput" class="input" placeholder="Enter value (for remove-by-value: type value; leave empty to pop top)" />
+            <button class="btn" onclick="stackPush()">Push</button>
+            <button class="btn" onclick="stackPop()">Pop / Remove</button>
+            <button class="btn ghost" onclick="stackPeek()">Peek</button>
+            <button class="btn ghost" onclick="stackClear()">Clear</button>
+          </div>
+          <div id="stackBox" class="stack-box" aria-live="polite"></div>
+          <div id="stackMsg" style="margin-top:8px;color:var(--muted)"></div>
+        </section>
+
+        <!-- ==================== QUEUE VISUALIZER ===================== -->
+        <section id="queue" class="card">
+          <h3>Queue Visualizer</h3>
+          <div class="controls">
+            <input id="queueInput" class="input" placeholder="Enter value (for remove-by-value: type value; leave empty to dequeue front)" />
+            <button class="btn" onclick="queueEnqueue()">Enqueue</button>
+            <button class="btn" onclick="queueDequeue()">Dequeue / Remove</button>
+            <button class="btn ghost" onclick="queuePeek()">Peek</button>
+            <button class="btn ghost" onclick="queueClear()">Clear</button>
+          </div>
+          <div id="queueBox" class="visual-row" aria-live="polite"></div>
+          <div id="queueMsg" style="margin-top:8px;color:var(--muted)"></div>
+        </section>
+
+        <!-- ==================== TREE VISUALIZER ===================== -->
+        <section id="tree" class="card">
+          <h3>Binary Tree Traversal Visualizer</h3>
+          <p style="color:var(--muted)">Generate sample tree and run traversals (Inorder / Preorder / Postorder).</p>
+          <div class="controls">
+            <button class="btn" onclick="treeGenerate()">Generate Sample Tree</button>
+            <button class="btn" onclick="treeInorder()">Inorder</button>
+            <button class="btn" onclick="treePreorder()">Preorder</button>
+            <button class="btn" onclick="treePostorder()">Postorder</button>
+            <button class="btn ghost" onclick="treeClear()">Clear</button>
+          </div>
+          <div id="treeCanvas" class="tree-canvas" aria-live="polite"></div>
+          <div id="treeMsg" style="margin-top:8px;color:var(--muted)"></div>
+        </section>
+
+        <!-- ==================== INFO SECTIONS (below visualizers) ===================== -->
+        <section id="overview" class="card">
+          <h3>DSA Overview</h3>
+          <p>Data Structures and Algorithms (DSA) form the foundation of efficient programming and problem-solving. Mastering DSA helps you write optimized, scalable, and logical solutions for real-world applications.</p>
+          <ul>
+            <li><b>Data Structures</b> – Ways to store and organize data (Array, Stack, Queue, Tree, Graph).</li>
+            <li><b>Algorithms</b> – Step-by-step procedures to process data (searching, sorting, traversal).</li>
+            <li><b>Efficiency</b> – Measured with Big-O notation for time and space complexity.</li>
+          </ul>
+        </section>
+
+        <section id="arrayInfo" class="card">
+          <h3>Array</h3>
+          <p>An Array is a linear data structure storing elements in contiguous memory locations.</p>
+          <ul>
+            <li>Fast index access → <b>O(1)</b></li>
+            <li>Insertion/removal at end → <b>O(1)</b></li>
+            <li>Search by value → <b>O(n)</b></li>
+          </ul>
+          <h4>Applications:</h4>
+          <ul><li>Lists, matrices, buffers, building-block for other structures</li></ul>
+        </section>
+
+        <section id="stackInfo" class="card">
+          <h3>Stack</h3>
+          <p>A Stack is a <b>LIFO</b> structure — Last In, First Out.</p>
+          <ul>
+            <li><b>Push</b> — add to top</li>
+            <li><b>Pop</b> — remove from top</li>
+            <li><b>Peek</b> — view top</li>
+          </ul>
+          <h4>Applications:</h4>
+          <ul><li>Call stacks, undo history, parsing expressions</li></ul>
+        </section>
+
+        <section id="queueInfo" class="card">
+          <h3>Queue</h3>
+          <p>A Queue is a <b>FIFO</b> structure — First In, First Out.</p>
+          <ul>
+            <li><b>Enqueue</b> — add to rear</li>
+            <li><b>Dequeue</b> — remove from front</li>
+            <li><b>Peek</b> — view front</li>
+          </ul>
+          <h4>Applications:</h4>
+          <ul><li>Scheduling, BFS traversal, task queues</li></ul>
+        </section>
+
+        <section id="treeInfo" class="card">
+          <h3>Binary Tree </h3>
+          <p>A binary tree is a hierarchical structure where each node has up to two children (left and right).</p>
+          <h4>Traversals:</h4>
+          <ul>
+            <li><b>Inorder:</b> Left → Root → Right</li>
+            <li><b>Preorder:</b> Root → Left → Right</li>
+            <li><b>Postorder:</b> Left → Right → Root</li>
+          </ul>
+          <h4>Applications:</h4>
+          <ul><li>Expression trees, binary search trees, file systems</li></ul>
+        </section>
+
+        <section id="algorithms" class="card">
+          <h3>Algorithms</h3>
+          <ol>
+            <li>Linear Search</li>
+            <li>Binary Search</li>
+            <li>Bubble Sort</li>
+            <li>Selection Sort</li>
+            <li>Insertion Sort</li>
+            <li>Quick Sort</li>
+            <li>Merge Sort</li>
+            <li>Breadth-First Search (BFS)</li>
+            <li>Depth-First Search (DFS)</li>
+            <li>Dijkstra's Shortest Path</li>
+          </ol>
+        </section>
+
+        <section id="pseudocode" class="card">
+          <h3>Pseudocode</h3>
+          <pre>// Linear Search
+LinearSearch(A, key)
+  for i = 0 to len(A)-1
+    if A[i] == key return i
+  return -1
+
+// Binary Search
+BinarySearch(A, key)
+  low = 0; high = len(A)-1
+  while low <= high
+    mid = (low+high)//2
+    if A[mid]==key return mid
+    if A[mid] < key low = mid+1 else high = mid-1
+  return -1</pre>
+        </section>
+
+        <section id="extras" class="card">
+          <h3>Extras & Notes</h3>
+          <ul>
+            <li>Neon Cyber UI</li>
+            <li>Keyboard: press Enter inside inputs to Add/Push/Enqueue</li>
+            <li>Remove-by-value: type value then press Remove/Pop/Dequeue — otherwise default remove occurs</li>
+          </ul>
+        </section>
+
+      </section>
+    </div>
+  </main>
+
+  <footer> DSA — Visualizers & Guide</footer>
+
+  <script>
+    /* ---------------- Utility: message helper ---------------- */
+    function showMsg(id, text, t=2200){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.innerText = text;
+      clearTimeout(el._t);
+      el._t = setTimeout(()=>{ if(el) el.innerText=''; }, t);
+    }
+
+    /* ---------------- Array Visualizer ---------------- */
+    const arrayData = [];
+    function renderArray(){
+      const box = document.getElementById('arrayBox');
+      box.innerHTML = '';
+      arrayData.forEach((v,i)=>{
+        const d = document.createElement('div');
+        d.className = 'node';
+        d.textContent = v;
+        if(i===0) d.classList.add('front');
+        if(i===arrayData.length-1) d.classList.add('rear');
+        box.appendChild(d);
+      });
+    }
+    function arrayAdd(){
+      const raw = document.getElementById('arrayInput').value.trim();
+      if(!raw){ showMsg('arrayMsg','Type a value to add'); return; }
+      const parts = raw.split(',').map(x=>x.trim()).filter(Boolean);
+      parts.forEach(p=>arrayData.push(p));
+      document.getElementById('arrayInput').value='';
+      renderArray();
+      showMsg('arrayMsg', `Added ${parts.length} value(s)`);
+    }
+    function arrayRemove(){
+      const raw = document.getElementById('arrayInput').value.trim();
+      if(raw){
+        const idx = arrayData.indexOf(raw);
+        if(idx === -1){ showMsg('arrayMsg', `Value "${raw}" not found`); return; }
+        const removed = arrayData.splice(idx,1)[0];
+        document.getElementById('arrayInput').value='';
+        renderArray();
+        showMsg('arrayMsg', `Removed: ${removed}`);
+      } else {
+        if(!arrayData.length){ showMsg('arrayMsg','Array empty'); return; }
+        const removed = arrayData.pop();
+        renderArray();
+        showMsg('arrayMsg', `Popped: ${removed}`);
+      }
+    }
+    function arraySearch(){
+      const key = document.getElementById('arrayInput').value.trim();
+      if(!key){ showMsg('arrayMsg','Type value to search'); return; }
+      const idx = arrayData.indexOf(key);
+      showMsg('arrayMsg', idx>=0 ? `Found at index ${idx}` : 'Not found');
+    }
+    function arrayClear(){ arrayData.length=0; renderArray(); showMsg('arrayMsg','Cleared'); }
+    // seed
+    arrayData.push('1','2','3'); renderArray();
+
+    /* ---------------- Stack Visualizer ---------------- */
+    const stack = [];
+    function renderStack(){
+      const box = document.getElementById('stackBox');
+      box.innerHTML='';
+      stack.forEach((v,i)=>{
+        const d=document.createElement('div');
+        d.className='node';
+        d.style.minWidth='120px';
+        d.textContent=v;
+        if(i===stack.length-1) d.classList.add('rear');
+        box.appendChild(d);
+      });
+    }
+    function stackPush(){
+      const v = document.getElementById('stackInput').value.trim();
+      if(!v){ showMsg('stackMsg','Type value to push'); return; }
+      stack.push(v);
+      document.getElementById('stackInput').value='';
+      renderStack();
+      showMsg('stackMsg',`Pushed: ${v}`);
+    }
+    function stackPop(){
+      const raw = document.getElementById('stackInput').value.trim();
+      if(raw){
+        const idx = stack.lastIndexOf(raw);
+        if(idx === -1){ showMsg('stackMsg',`Value "${raw}" not found in stack`); return; }
+        const removed = stack.splice(idx,1)[0];
+        document.getElementById('stackInput').value='';
+        renderStack();
+        showMsg('stackMsg', `Removed: ${removed}`);
+      } else {
+        if(!stack.length){ showMsg('stackMsg','Stack empty'); return; }
+        const r = stack.pop();
+        renderStack();
+        showMsg('stackMsg',`Popped: ${r}`);
+      }
+    }
+    function stackPeek(){
+      if(!stack.length){ showMsg('stackMsg','Stack empty'); return; }
+      showMsg('stackMsg',`Top: ${stack[stack.length-1]}`);
+    }
+    function stackClear(){ stack.length=0; renderStack(); showMsg('stackMsg','Cleared'); }
+    // seed
+    stack.push('A','B'); renderStack();
+
+    /* ---------------- Queue Visualizer ---------------- */
+    const queue = [];
+    function renderQueue(){
+      const box=document.getElementById('queueBox');
+      box.innerHTML='';
+      queue.forEach((v,i)=>{
+        const d=document.createElement('div');
+        d.className='node';
+        d.textContent=v;
+        if(i===0) d.classList.add('front');
+        if(i===queue.length-1) d.classList.add('rear');
+        box.appendChild(d);
+      });
+    }
+    function queueEnqueue(){
+      const v=document.getElementById('queueInput').value.trim();
+      if(!v){ showMsg('queueMsg','Type value to enqueue'); return; }
+      queue.push(v);
+      document.getElementById('queueInput').value='';
+      renderQueue();
+      showMsg('queueMsg',`Enqueued: ${v}`);
+    }
+    function queueDequeue(){
+      const raw = document.getElementById('queueInput').value.trim();
+      if(raw){
+        const idx = queue.indexOf(raw);
+        if(idx === -1){ showMsg('queueMsg',`Value "${raw}" not found in queue`); return; }
+        const removed = queue.splice(idx,1)[0];
+        document.getElementById('queueInput').value='';
+        renderQueue();
+        showMsg('queueMsg',`Removed: ${removed}`);
+      } else {
+        if(!queue.length){ showMsg('queueMsg','Queue empty'); return; }
+        const r = queue.shift();
+        renderQueue();
+        showMsg('queueMsg',`Dequeued: ${r}`);
+      }
+    }
+    function queuePeek(){ if(!queue.length){ showMsg('queueMsg','Queue empty'); return; } showMsg('queueMsg',`Front: ${queue[0]}`); }
+    function queueClear(){ queue.length=0; renderQueue(); showMsg('queueMsg','Cleared'); }
+    // seed
+    queue.push('x','y'); renderQueue();
+
+    /* ---------------- Tree Visualizer ---------------- */
+    function TNode(v,l=null,r=null){ return {val:String(v), left:l, right:r}; }
+    let treeRoot = null;
+    function treeGenerate(){
+      treeRoot = TNode(1, TNode(2, TNode(4), TNode(5)), TNode(3, TNode(6), TNode(7)));
+      renderTree(); showMsg('treeMsg','Sample tree generated');
+    }
+    function renderTree(){
+      const canvas=document.getElementById('treeCanvas');
+      canvas.innerHTML='';
+      if(!treeRoot) return;
+      const levels=[];
+      const q=[{n:treeRoot,l:0}];
+      while(q.length){
+        const it=q.shift();
+        if(!levels[it.l]) levels[it.l]=[];
+        levels[it.l].push(it.n.val);
+        if(it.n.left) q.push({n:it.n.left,l:it.l+1});
+        if(it.n.right) q.push({n:it.n.right,l:it.l+1});
+      }
+      levels.forEach(row=>{
+        const r=document.createElement('div'); r.className='tree-row';
+        row.forEach(v=>{ const n=document.createElement('div'); n.className='tree-node'; n.textContent=v; r.appendChild(n); });
+        canvas.appendChild(r);
+      });
+    }
+    function treeClear(){ treeRoot=null; renderTree(); showMsg('treeMsg','Cleared'); }
+
+    function highlightSeq(seq){
+      const canvas=document.getElementById('treeCanvas');
+      const map={};
+      canvas.querySelectorAll('.tree-node').forEach(el=>{
+        if(!map[el.textContent]) map[el.textContent] = [];
+        map[el.textContent].push(el);
+      });
+      let i=0;
+      (function step(){
+        if(i>=seq.length) return;
+        const v=seq[i];
+        const list = map[v] || [];
+        const el = list.shift() || null;
+        if(el){
+          const old=el.style.background;
+          el.style.background='linear-gradient(90deg,#ffd166,#ff8fab)';
+          el.style.color='#071026';
+          el.style.transform='scale(1.08)';
+          setTimeout(()=>{ el.style.background=old||''; el.style.color=''; el.style.transform=''; },500);
+        }
+        i++; setTimeout(step,600);
+      })();
+    }
+    function treeInorder(){
+      if(!treeRoot){ showMsg('treeMsg','No tree. Generate sample first'); return; }
+      const seq=[];
+      (function inorder(n){ if(!n) return; inorder(n.left); seq.push(n.val); inorder(n.right); })(treeRoot);
+      highlightSeq(seq); showMsg('treeMsg','Inorder');
+    }
+    function treePreorder(){
+      if(!treeRoot){ showMsg('treeMsg','No tree. Generate sample first'); return; }
+      const seq=[];
+      (function pre(n){ if(!n) return; seq.push(n.val); pre(n.left); pre(n.right); })(treeRoot);
+      highlightSeq(seq); showMsg('treeMsg','Preorder');
+    }
+    function treePostorder(){
+      if(!treeRoot){ showMsg('treeMsg','No tree. Generate sample first'); return; }
+      const seq=[];
+      (function post(n){ if(!n) return; post(n.left); post(n.right); seq.push(n.val); })(treeRoot);
+      highlightSeq(seq); showMsg('treeMsg','Postorder');
+    }
+    // generate sample automatically on load
+    treeGenerate();
+
+    /* ---------------- Keyboard shortcuts (Enter to add) ---------------- */
+    document.addEventListener('DOMContentLoaded', ()=> {
+      const arrIn = document.getElementById('arrayInput');
+      const stkIn = document.getElementById('stackInput');
+      const queIn = document.getElementById('queueInput');
+      if(arrIn) arrIn.addEventListener('keydown', e=>{ if(e.key==='Enter') arrayAdd(); });
+      if(stkIn) stkIn.addEventListener('keydown', e=>{ if(e.key==='Enter') stackPush(); });
+      if(queIn) queIn.addEventListener('keydown', e=>{ if(e.key==='Enter') queueEnqueue(); });
+    });
+
+  </script>
+</body>
+</html>
